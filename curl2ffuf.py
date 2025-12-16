@@ -19,25 +19,43 @@ def unquote_token(t: str) -> str:
         t = t[1:-1]
 
     # Sometimes Burp exports values like $POST / $Host: ...
-    # If it looks like a leftover "$" prefix, strip it.
     if t.startswith("$") and not ("http://" in t or "https://" in t):
         t = t[1:]
 
     return t
 
 
-def parse_curl(cmd: str):
-    tokens = [unquote_token(x) for x in shlex.split(cmd)]
+# CHANGED: now accepts list[str] OR str
+def parse_curl(cmd):
+    # NEW: support already-split args
+    if isinstance(cmd, list):
+        tokens = [unquote_token(x) for x in cmd]
+    else:
+        tokens = [unquote_token(x) for x in shlex.split(cmd)]
 
     method = "GET"
     url = None
     headers = []
     data = None
     cookie = None
+    warnings = []  # NEW
+
+    known_flags = {
+        "-X", "--request",
+        "-H", "--header",
+        "-d", "--data", "--data-raw", "--data-binary",
+        "-b", "--cookie",
+    }
 
     i = 0
     while i < len(tokens):
         tok = tokens[i]
+
+        # NEW: warn on unknown curl flags, but continue
+        if tok.startswith("-") and tok not in known_flags:
+            warnings.append(f"[!] Ignoring unsupported curl flag: {tok}")
+            i += 1
+            continue
 
         if tok == "curl":
             i += 1
@@ -50,7 +68,6 @@ def parse_curl(cmd: str):
 
         if tok in ("-H", "--header") and i + 1 < len(tokens):
             h = unquote_token(tokens[i + 1])
-            # strip stray '$' if any
             if h.startswith("$"):
                 h = h[1:]
             headers.append(h)
@@ -82,11 +99,10 @@ def parse_curl(cmd: str):
     if cookie:
         headers.append(f"Cookie: {cookie}")
 
-    # If no explicit -X but we have body, assume POST
     if data and method == "GET":
         method = "POST"
 
-    return method, url, headers, data
+    return method, url, headers, data, warnings  # CHANGED
 
 
 def fuzz_query(url: str, param: str | None = None) -> str:
@@ -113,10 +129,8 @@ def fuzz_body(data: str, param: str | None = None) -> str:
 
 
 def build_ffuf(method, url, headers, data, wordlist, param):
-    # fuzz location
     out_url = fuzz_query(url, param) if method == "GET" else url
 
-    # shell-safe quoting
     cmd = ["ffuf", "-u", shlex.quote(out_url), "-X", shlex.quote(method)]
 
     for h in headers:
@@ -135,12 +149,24 @@ def main():
         description="Convert a curl command into an ffuf command (GET/POST + headers + cookies + body).",
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    p.add_argument("curl", help="Full curl command (wrap in quotes)")
-    p.add_argument("-w", "--wordlist", default="/usr/share/wordlists/dirb/common.txt", help="ffuf wordlist (default: /usr/share/wordlists/dirb/common.txt)")
+
+    # CHANGED: accept raw curl args
+    p.add_argument("curl", nargs=argparse.REMAINDER, help="curl command (quoted or raw)")
+    p.add_argument("-w", "--wordlist", default="/usr/share/wordlists/dirb/common.txt",
+                   help="ffuf wordlist (default: /usr/share/wordlists/dirb/common.txt)")
     p.add_argument("-p", "--param", help="Parameter name to fuzz (default: first parameter)")
     args = p.parse_args()
 
-    method, url, headers, data = parse_curl(args.curl)
+    if not args.curl:
+        print("[-] No curl command provided")
+        sys.exit(1)
+
+    method, url, headers, data, warnings = parse_curl(args.curl)
+
+    # NEW: print warnings but continue
+    for w in warnings:
+        print(w, file=sys.stderr)
+
     if not url:
         print("[-] No URL found in curl command")
         sys.exit(1)
