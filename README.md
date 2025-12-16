@@ -28,32 +28,46 @@ sudo ln -s $(pwd)/curl2ffuf.py /usr/local/bin/curl2ffuf
 
 ## Usage
 
-`curl2ffuf '<curl command>' [options]`
+```sh
+curl2ffuf '<curl command>' [options]
+```
 
 Help:
+```sh
 curl2ffuf -h
+```
 
 ## Examples
 
 GET:
-`curl2ffuf 'curl "https://target/search?q=test&lang=en"'`
+```
+curl2ffuf 'curl "https://target/search?q=test&lang=en"'
+```
 
 POST:
-`curl2ffuf 'curl -X POST https://target/login -d "user=admin&pass=admin"'`
+```
+curl2ffuf 'curl -X POST https://target/login -d "user=admin&pass=admin"'
+```
 
 Burp export:
-`curl2ffuf "curl -X $'POST' -H $'Content-Type: application/x-www-form-urlencoded' -b $'PHPSESSID=abc123' --data-binary $'q=test' $'http://target/search.php'"`
+```
+curl2ffuf "curl -X $'POST' -H $'Content-Type: application/x-www-form-urlencoded' -b $'PHPSESSID=abc123' --data-binary $'q=test' $'http://target/search.php'"
+```
 
 Fuzz specific parameter:
-`curl2ffuf 'curl "https://target/search?q=test&lang=en"' -p q`
+```
+curl2ffuf 'curl "https://target/search?q=test&lang=en"' -p q
+```
 
 Custom wordlist:
-`curl2ffuf 'curl -X POST https://target/login -d "user=admin&pass=admin"' -p pass -w rockyou.txt`
+```
+curl2ffuf 'curl -X POST https://target/login -d "user=admin&pass=admin"' -p pass -w rockyou.txt
+```
 
 ## Options
 
 -h, --help        show help  
--w, --wordlist    ffuf wordlist (default: wordlist.txt)  
+-w, --wordlist    ffuf wordlist (default: /usr/share/wordlists/dirb/common.txt)  
 -p, --param       parameter to fuzz  
 
 ## Notes
