@@ -15,9 +15,9 @@ Built for web pentesting, bug bounty and CTF workflows.
 
 ## Installation
 
-`git clone https://github.com/<your-user>/curl2ffuf.git
+```git clone https://github.com/<your-user>/curl2ffuf.git
 cd curl2ffuf
-chmod +x curl2ffuf.py`
+chmod +x curl2ffuf.py```
 
 Optional:
 `sudo ln -s $(pwd)/curl2ffuf.py /usr/local/bin/curl2ffuf`
