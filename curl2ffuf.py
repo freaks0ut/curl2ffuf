@@ -136,7 +136,7 @@ def main():
         formatter_class=argparse.RawTextHelpFormatter,
     )
     p.add_argument("curl", help="Full curl command (wrap in quotes)")
-    p.add_argument("-w", "--wordlist", default="/usr/share/wordlists/dirb/common.txt", help="ffuf wordlist (default: wordlist.txt)")
+    p.add_argument("-w", "--wordlist", default="/usr/share/wordlists/dirb/common.txt", help="ffuf wordlist (default: /usr/share/wordlists/dirb/common.txt)")
     p.add_argument("-p", "--param", help="Parameter name to fuzz (default: first parameter)")
     args = p.parse_args()
 
