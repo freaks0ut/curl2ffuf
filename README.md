@@ -15,16 +15,16 @@ Built for web pentesting, bug bounty and CTF workflows.
 
 ## Installation
 
-```git clone https://github.com/<your-user>/curl2ffuf.git
+`git clone https://github.com/<your-user>/curl2ffuf.git
 cd curl2ffuf
-chmod +x curl2ffuf.py```
+chmod +x curl2ffuf.py`
 
 Optional:
-```sudo ln -s $(pwd)/curl2ffuf.py /usr/local/bin/curl2ffuf```
+`sudo ln -s $(pwd)/curl2ffuf.py /usr/local/bin/curl2ffuf`
 
 ## Usage
 
-```curl2ffuf '<curl command>' [options]```
+`curl2ffuf '<curl command>' [options]`
 
 Help:
 curl2ffuf -h
@@ -32,19 +32,19 @@ curl2ffuf -h
 ## Examples
 
 GET:
-```curl2ffuf 'curl "https://target/search?q=test&lang=en"'```
+`curl2ffuf 'curl "https://target/search?q=test&lang=en"'`
 
 POST:
-```curl2ffuf 'curl -X POST https://target/login -d "user=admin&pass=admin"'```
+`curl2ffuf 'curl -X POST https://target/login -d "user=admin&pass=admin"'`
 
 Burp export:
-```curl2ffuf "curl -X $'POST' -H $'Content-Type: application/x-www-form-urlencoded' -b $'PHPSESSID=abc123' --data-binary $'q=test' $'http://target/search.php'"```
+`curl2ffuf "curl -X $'POST' -H $'Content-Type: application/x-www-form-urlencoded' -b $'PHPSESSID=abc123' --data-binary $'q=test' $'http://target/search.php'"`
 
 Fuzz specific parameter:
-```curl2ffuf 'curl "https://target/search?q=test&lang=en"' -p q```
+`curl2ffuf 'curl "https://target/search?q=test&lang=en"' -p q`
 
 Custom wordlist:
-```curl2ffuf 'curl -X POST https://target/login -d "user=admin&pass=admin"' -p pass -w rockyou.txt```
+`curl2ffuf 'curl -X POST https://target/login -d "user=admin&pass=admin"' -p pass -w rockyou.txt`
 
 ## Options
 
